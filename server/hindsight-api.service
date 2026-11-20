@@ -1,0 +1,29 @@
+# systemd USER unit for the Hindsight API.
+#
+# Installed at: ~/.config/systemd/user/hindsight-api.service   (mode 644)
+# Enable:       systemctl --user daemon-reload && systemctl --user enable --now hindsight-api.service
+#
+# One process serves BOTH interfaces on one port:
+#   * the REST API used by the DSH coding-agents plugin
+#   * /mcp    used by the DSH MCP connection (Streamable HTTP)
+#
+# Adjust the two absolute paths to your own user / venv before installing.
+# The Description documents how port 18888 is exposed on this host: loopback for
+# the host itself, tailnet for remote nodes, and an nftables allow-list for the LAN.
+
+[Unit]
+Description=Hindsight API (single instance 0.0.0.0:18888 - loopback + LAN via nftables whitelist + tailnet)
+After=tailscaled.service network-online.target
+Wants=tailscaled.service
+
+[Service]
+ExecStart=/home/sylw/.venvs/hindsight/bin/hindsight-api --host 0.0.0.0 --port 18888
+EnvironmentFile=/home/sylw/.hermes/hindsight-api.env
+# Keep CPU-only: an empty CUDA_VISIBLE_DEVICES prevents the local embedding and
+# reranker models from grabbing VRAM that the local LLM inference already needs.
+Environment=CUDA_VISIBLE_DEVICES=
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=default.target

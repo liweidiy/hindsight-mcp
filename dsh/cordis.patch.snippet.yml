@@ -1,0 +1,40 @@
+# DSH profile patch snippet — the MCP channel.
+#
+# Merge this row into:  $DSH_HOME/profiles/<profile>/cordis.patch.yml
+# Verify afterwards in the DSH UI (left sidebar -> Plugins -> MCP servers).
+#
+# Why it is a row of @deepseek-ai/dsh-mcp-manager and not a standalone
+# @deepseek-ai/dsh-mcp-client row: the manager lists and governs only servers it
+# owns through its own config.servers, so a statically composed client row never
+# appears in the MCP status UI (and its serverName blocks a managed entry from
+# reusing that name).
+#
+# `${credential:...}` in url/headers is expanded by the mounted mcp-client instance.
+# The key itself stays in $DSH_HOME/.credentials.yaml under `refs:` as
+# HINDSIGHT_API_KEY, so it never enters the config tree or any diagnostics output.
+#
+# A patch replaces the targeted row's WHOLE config object. If your profile already
+# has an mcp-manager row with other servers, merge `hindsight` into the existing
+# servers map instead of pasting this row as-is.
+
+- id: mcp-manager
+  name: "@deepseek-ai/dsh-mcp-manager"
+  config:
+    servers:
+      hindsight:
+        transport: streamable-http
+        url: http://<HINDSIGHT_HOST>:18888/mcp
+        headers:
+          Authorization: 'Bearer ${credential:HINDSIGHT_API_KEY}'
+        enabled: true
+
+# Two details that are easy to get wrong:
+#
+# 1. `/mcp` (no bank id in the path) = multi-bank mode. Every tool then exposes an
+#    optional `bank_id` argument, and a tool call that omits it resolves to
+#    HINDSIGHT_MCP_BANK_ID on the server. If you write `/mcp/<bank>/` instead, the
+#    connection is pinned to that bank and `bank_id` disappears from the tool schemas.
+#
+# 2. The Authorization header is the *server's* tenant API key
+#    (HINDSIGHT_API_TENANT_API_KEY / a tenant key created through the API), not any
+#    DSH credential.

@@ -1,0 +1,21 @@
+# Real secrets / real config — never commit
+*.env
+.credentials.yaml
+.hindsight/
+*.credentials.yaml
+
+# Bank exports, backups, scratch
+*.zip
+*.bak
+*.bak.*
+backup*/
+archive/
+tmp/
+*.log
+
+# OS / editor noise
+.DS_Store
+Thumbs.db
+desktop.ini
+.idea/
+.vscode/

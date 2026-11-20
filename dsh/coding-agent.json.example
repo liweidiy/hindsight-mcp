@@ -1,0 +1,22 @@
+{
+  "serverMode": "self-hosted",
+  "apiUrl": "http://<HINDSIGHT_HOST>:18888",
+  "apiToken": "<REDACTED>",
+  "bankId": "sylw",
+  "dynamicBankId": false,
+  "retainTags": [
+    "device:{project}",
+    "env:win"
+  ],
+  "retainMetadata": {
+    "device": "{project}"
+  },
+  "codebaseSurvey": false,
+  "autoInject": "pages",
+  "injectTimeoutMs": 20000,
+  "reflectToolTimeoutMs": 300000,
+  "pageTriggerCron": "H 4 * * *",
+  "gitIngest": "message",
+  "retainSessions": true,
+  "logLevel": "info"
+}
